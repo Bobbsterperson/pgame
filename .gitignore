@@ -1,0 +1,9 @@
+# Ignore everything in the root except these files
+*
+!main.py
+!Pipfile
+!assets/
+
+# Ignore everything in the folder_to_track except these files
+folder_to_track/*
+!folder_to_track/important_file.txt
