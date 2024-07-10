@@ -4,34 +4,54 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
-import random
+from kivy.graphics import Color, Rectangle
+from kivy.core.window import Window
 
 kivy.require('2.0.0')
 
-pics = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg']
-
+PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg']
 
 class MainApp(App):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.current_image_index = 0
 
-    def change_image_random(self, instance):
-        self.image.source = random.choice(pics)
+    def change_image_next(self, instance):
+        self.current_image_index += 1
+        if self.current_image_index >= len(PICS):
+            self.current_image_index = 0
+        self.image.source = PICS[self.current_image_index]
         self.image.reload()
 
+    def on_touch_punch(self, instance, touch):
+        if instance.collide_point(*touch.pos):
+            print(f"Punch button touched at position: {touch.pos}")
+
+    def on_touch_piss(self, instance, touch):
+        if instance.collide_point(*touch.pos):
+            print(f"Piss button touched at position: {touch.pos}")
+
     def build(self):
-        self.image = Image(source=pics[0], size_hint=(1, 0.5))
+        Window.size = (600, 1000)
+        self.image = Image(source=PICS[0], size_hint=(1, 0.5))
         
         main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+
+        with main_layout.canvas.before:
+            # Darker orange background color
+            Color(0.85, 0.3, 0.0, 1.0)  # RGBA values for darker orange
+            self.rect = Rectangle(size=Window.size, pos=main_layout.pos)
+        
         main_layout.add_widget(self.image)
         
-        # Add the 3 rectangle buttons below the image
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
         btn1 = Button(text='Left')
         btn2 = Button(text='Walk')
         btn3 = Button(text='Right')
         
-        btn1.bind(on_press=self.change_image_random)
-        btn2.bind(on_press=self.change_image_random)
-        btn3.bind(on_press=self.change_image_random)
+        btn1.bind(on_press=self.change_image_next)
+        btn2.bind(on_press=self.change_image_next)
+        btn3.bind(on_press=self.change_image_next)
         
         rect_buttons_layout_top.add_widget(btn1)
         rect_buttons_layout_top.add_widget(btn2)
@@ -39,17 +59,18 @@ class MainApp(App):
         
         main_layout.add_widget(rect_buttons_layout_top)
         
-        # Add the 2 bigger square buttons below the rectangle buttons
         square_buttons_layout = GridLayout(cols=2, size_hint=(1, 0.3), spacing=10)
-        btn4 = Button(text='Punch')
-        btn5 = Button(text='Piss')
+        self.btn_punch = Button(text='Punch')
+        self.btn_piss = Button(text='Piss')
         
-        square_buttons_layout.add_widget(btn4)
-        square_buttons_layout.add_widget(btn5)
+        self.btn_punch.bind(on_touch_down=self.on_touch_punch)
+        self.btn_piss.bind(on_touch_down=self.on_touch_piss)
+        
+        square_buttons_layout.add_widget(self.btn_punch)
+        square_buttons_layout.add_widget(self.btn_piss)
         
         main_layout.add_widget(square_buttons_layout)
         
-        # Add the 3 rectangle buttons at the bottom
         rect_buttons_layout_bottom = GridLayout(cols=3, size_hint=(1, 0.05), spacing=10)
         btn6 = Button(text='items')
         btn7 = Button(text='stats')
@@ -62,7 +83,6 @@ class MainApp(App):
         main_layout.add_widget(rect_buttons_layout_bottom)
         
         return main_layout
-    
 
 if __name__ == '__main__':
     MainApp().run()
