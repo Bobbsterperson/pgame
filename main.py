@@ -10,7 +10,7 @@ from kivy.clock import Clock
 
 kivy.require('2.0.0')
 
-PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
+PICS = ['assets/img10.jpg', 'assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
 
 class MainApp(App):
     def __init__(self, **kwargs):
@@ -28,24 +28,26 @@ class MainApp(App):
         self.overlay_rect.source = image_path
         self.overlay_rect.size = self.image.size
         self.overlay_rect.pos = self.image.pos
+        self.image.size = self.overlay_rect.size
 
     def show_overlay_for_duration(self, image_path):
         self.update_overlay_image(image_path)
-        Clock.schedule_once(self.hide_overlay, 1.0)  # Schedule to hide after 1 second
+        Clock.schedule_once(self.hide_overlay, 1.0)
 
     def hide_overlay(self, dt):
         self.overlay_rect.source = ''
         self.overlay_rect.size = (0, 0)
         self.overlay_rect.pos = (0, 0)
+        self.image.size = Window.size
 
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.show_overlay_for_duration('assets/mouse.png')
+            self.show_overlay_for_duration('assets/punch.png')
             print(f"Punch button touched at position: {touch.pos}")
 
     def on_touch_piss(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.show_overlay_for_duration('assets/mouse.png')
+            self.show_overlay_for_duration('assets/piss.png')
             print(f"Piss button touched at position: {touch.pos}")
 
     def build(self):
