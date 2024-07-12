@@ -26,14 +26,11 @@ class MainApp(App):
 
     def update_overlay_image(self, image_path, touch_pos):
         self.overlay_rect.source = image_path
-        
-        # Adjust the size of the overlay image
         self.overlay_rect.size = (self.image.width * 0.5, self.image.height * 0.5)
-        
         # Calculate position relative to touch position
         overlay_width = self.overlay_rect.size[0]
         overlay_height = self.overlay_rect.size[1]
-        self.overlay_rect.pos = (touch_pos[0] - overlay_width / 2, touch_pos[1] - overlay_height / 2)
+        self.overlay_rect.pos = (touch_pos[0]  + overlay_width / 5, touch_pos[1] + overlay_height + overlay_height / 2)
 
 
         
