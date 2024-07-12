@@ -6,6 +6,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
+from kivy.clock import Clock
 
 kivy.require('2.0.0')
 
@@ -28,16 +29,24 @@ class MainApp(App):
         self.overlay_rect.size = self.image.size
         self.overlay_rect.pos = self.image.pos
 
+    def show_overlay_for_duration(self, image_path):
+        self.update_overlay_image(image_path)
+        Clock.schedule_once(self.hide_overlay, 1.0)  # Schedule to hide after 1 second
+
+    def hide_overlay(self, dt):
+        self.overlay_rect.source = ''
+        self.overlay_rect.size = (0, 0)
+        self.overlay_rect.pos = (0, 0)
+
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.update_overlay_image('assets/mouse.png')
+            self.show_overlay_for_duration('assets/mouse.png')
             print(f"Punch button touched at position: {touch.pos}")
 
     def on_touch_piss(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.update_overlay_image('assets/mouse.png')
+            self.show_overlay_for_duration('assets/mouse.png')
             print(f"Piss button touched at position: {touch.pos}")
-            
 
     def build(self):
         Window.size = (600, 1000)
