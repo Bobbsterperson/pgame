@@ -10,7 +10,7 @@ from kivy.clock import Clock
 
 kivy.require('2.0.0')
 
-PICS = ['assets/img10.jpg', 'assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
+PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
 
 class MainApp(App):
     def __init__(self, **kwargs):
@@ -28,7 +28,7 @@ class MainApp(App):
         self.overlay_rect.source = image_path
         self.overlay_rect.size = self.image.size
         self.overlay_rect.pos = self.image.pos
-        self.image.size = self.overlay_rect.size
+        
 
     def show_overlay_for_duration(self, image_path):
         self.update_overlay_image(image_path)
@@ -38,7 +38,7 @@ class MainApp(App):
         self.overlay_rect.source = ''
         self.overlay_rect.size = (0, 0)
         self.overlay_rect.pos = (0, 0)
-        self.image.size = Window.size
+        
 
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
@@ -52,7 +52,7 @@ class MainApp(App):
 
     def build(self):
         Window.size = (600, 1000)
-        self.image = Image(source=PICS[0], size_hint=(1, 0.5))
+        self.image = Image(source=PICS[0], size_hint=(1, 0.5), allow_stretch=True)
         
         main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
