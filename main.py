@@ -24,20 +24,26 @@ class MainApp(App):
         self.image.source = PICS[self.current_image_index]
         self.image.reload()
 
-    def update_overlay_image(self, image_path, touch_pos):
+    def update_overlay_image(self, image_path, touch_pos, button_type):
         self.overlay_rect.source = image_path
         self.overlay_rect.size = (self.image.width * 0.5, self.image.height * 0.5)
-        # Calculate position relative to touch position
+        
         overlay_width = self.overlay_rect.size[0]
         overlay_height = self.overlay_rect.size[1]
-        self.overlay_rect.pos = (touch_pos[0]  + overlay_width / 5, touch_pos[1] + overlay_height + overlay_height / 2)
+        
+        if button_type == 'punch':
+            self.overlay_rect.pos = (touch_pos[0] + overlay_width / 8, touch_pos[1] + overlay_height + overlay_height / 2)
+        elif button_type == 'piss':
+            self.overlay_rect.pos = (touch_pos[0] - overlay_width, touch_pos[1] + overlay_height + overlay_height / 2)
+
 
 
         
 
-    def show_overlay_for_duration(self, image_path, touch_pos):
-        self.update_overlay_image(image_path, touch_pos)
+    def show_overlay_for_duration(self, image_path, touch_pos, button_type):
+        self.update_overlay_image(image_path, touch_pos, button_type)
         Clock.schedule_once(self.hide_overlay, 1.0)
+
 
 
     def hide_overlay(self, dt):
@@ -48,12 +54,12 @@ class MainApp(App):
 
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.show_overlay_for_duration('assets/punch.png', touch.pos)
+            self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
             print(f"Punch button touched at position: {touch.pos}")
 
     def on_touch_piss(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.show_overlay_for_duration('assets/piss.png', touch.pos)
+            self.show_overlay_for_duration('assets/piss.png', touch.pos, 'piss')
             print(f"Piss button touched at position: {touch.pos}")
 
     def build(self):
