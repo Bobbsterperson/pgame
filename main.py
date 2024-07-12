@@ -9,7 +9,7 @@ from kivy.core.window import Window
 
 kivy.require('2.0.0')
 
-PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg']
+PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
 
 class MainApp(App):
     def __init__(self, **kwargs):
@@ -23,13 +23,21 @@ class MainApp(App):
         self.image.source = PICS[self.current_image_index]
         self.image.reload()
 
+    def update_overlay_image(self, image_path):
+        self.overlay_rect.source = image_path
+        self.overlay_rect.size = self.image.size
+        self.overlay_rect.pos = self.image.pos
+
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
+            self.update_overlay_image('assets/mouse.png')
             print(f"Punch button touched at position: {touch.pos}")
 
     def on_touch_piss(self, instance, touch):
         if instance.collide_point(*touch.pos):
+            self.update_overlay_image('assets/mouse.png')
             print(f"Piss button touched at position: {touch.pos}")
+            
 
     def build(self):
         Window.size = (600, 1000)
@@ -38,11 +46,13 @@ class MainApp(App):
         main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         with main_layout.canvas.before:
-            # Darker orange background color
-            Color(0.85, 0.3, 0.0, 1.0)  # RGBA values for darker orange
+            Color(0.85, 0.3, 0.0, 1.0)
             self.rect = Rectangle(size=Window.size, pos=main_layout.pos)
         
         main_layout.add_widget(self.image)
+
+        with main_layout.canvas:
+            self.overlay_rect = Rectangle(size=self.image.size, pos=self.image.pos)
         
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
         btn1 = Button(text='Left')
