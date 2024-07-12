@@ -24,15 +24,24 @@ class MainApp(App):
         self.image.source = PICS[self.current_image_index]
         self.image.reload()
 
-    def update_overlay_image(self, image_path):
+    def update_overlay_image(self, image_path, touch_pos):
         self.overlay_rect.source = image_path
-        self.overlay_rect.size = self.image.size
-        self.overlay_rect.pos = self.image.pos
+        
+        # Adjust the size of the overlay image
+        self.overlay_rect.size = (self.image.width * 0.5, self.image.height * 0.5)
+        
+        # Calculate position relative to touch position
+        overlay_width = self.overlay_rect.size[0]
+        overlay_height = self.overlay_rect.size[1]
+        self.overlay_rect.pos = (touch_pos[0] - overlay_width / 2, touch_pos[1] - overlay_height / 2)
+
+
         
 
-    def show_overlay_for_duration(self, image_path):
-        self.update_overlay_image(image_path)
+    def show_overlay_for_duration(self, image_path, touch_pos):
+        self.update_overlay_image(image_path, touch_pos)
         Clock.schedule_once(self.hide_overlay, 1.0)
+
 
     def hide_overlay(self, dt):
         self.overlay_rect.source = ''
@@ -42,12 +51,12 @@ class MainApp(App):
 
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.show_overlay_for_duration('assets/punch.png')
+            self.show_overlay_for_duration('assets/punch.png', touch.pos)
             print(f"Punch button touched at position: {touch.pos}")
 
     def on_touch_piss(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.show_overlay_for_duration('assets/piss.png')
+            self.show_overlay_for_duration('assets/piss.png', touch.pos)
             print(f"Piss button touched at position: {touch.pos}")
 
     def build(self):
