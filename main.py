@@ -16,6 +16,7 @@ class MainApp(App):
         self.red_bar_width = 500  # Initial width of the red bar
         self.yellow_bar_width = 0  # Initial width of the yellow bar
         self.piss_button_pressed = False  # Track if Piss button is pressed
+        self.yellow_bar_decrease_event = None  # Event to decrease yellow bar
 
     def change_theme_next(self, instance):
         self.current_theme_index = (self.current_theme_index + 1) % len(constants.background_color)
@@ -52,12 +53,23 @@ class MainApp(App):
         self.update_overlay_image(image_path, touch_pos, button_type)
         if button_type == 'piss':
             self.piss_button_pressed = True  # Set flag when Piss button is pressed
+            self.start_yellow_bar_decrease_event()
 
     def hide_overlay(self, dt):
         self.overlay_rect.source = ''
         self.overlay_rect.size = (0, 0)
         self.overlay_rect.pos = (0, 0)
+        self.stop_yellow_bar_decrease_event()
         self.piss_button_pressed = False  # Reset flag when Piss button is released
+
+    def start_yellow_bar_decrease_event(self):
+        if not self.yellow_bar_decrease_event:
+            self.yellow_bar_decrease_event = Clock.schedule_interval(self.decrease_yellow_bar, 0.1)  # Decrease yellow bar every 0.1 seconds
+
+    def stop_yellow_bar_decrease_event(self):
+        if self.yellow_bar_decrease_event:
+            self.yellow_bar_decrease_event.cancel()
+            self.yellow_bar_decrease_event = None
 
     def on_touch_piss_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
@@ -73,15 +85,15 @@ class MainApp(App):
             self.red_bar_width = 0  # Ensure the width doesn't go negative
         self.red_bar.size = (self.red_bar_width, 20)  # Update the size of the red bar
 
-    def decrease_yellow_bar(self):
+    def decrease_yellow_bar(self, dt):
         if self.piss_button_pressed:  # Check if Piss button is held down
-            self.yellow_bar_width -= 20  # Decrease the width of the yellow bar
+            self.yellow_bar_width -= 15  # Decrease the width of the yellow bar
             if self.yellow_bar_width < 0:
                 self.yellow_bar_width = 0  # Ensure the width doesn't go negative
             self.yellow_bar.size = (self.yellow_bar_width, 20)  # Update the size of the yellow bar
 
     def increase_yellow_bar(self, dt):
-        self.yellow_bar_width += 10  # Increase the width of the yellow bar
+        self.yellow_bar_width += 5 # Increase the width of the yellow bar
         if self.yellow_bar_width > self.image.width / 1.16:
             self.yellow_bar_width = self.image.width / 1.16  # Ensure the width doesn't exceed the image width
         self.yellow_bar.size = (self.yellow_bar_width, 20)  # Update the size of the yellow bar
@@ -102,10 +114,10 @@ class MainApp(App):
             self.overlay_rect = Rectangle(size=self.image.size, pos=self.image.pos)
 
         with self.main_layout.canvas.after:
-            Color(1, 0, 0, 1)
+            Color(0.7, 0, 0, 1)
             self.red_bar = Rectangle(size=(self.red_bar_width, 20), pos=(50, self.image.pos[1] + self.image.height * 9.7))  # Position above the image
 
-            Color(1, 1, 0, 1)  # Yellow color
+            Color(0.7, 0.7, 0, 0.5)
             self.yellow_bar = Rectangle(size=(self.yellow_bar_width, 20), pos=(50, self.image.pos[1] + self.image.height * 9.5))  # Position above the red bar
 
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
@@ -155,7 +167,7 @@ class MainApp(App):
 
         self.main_layout.add_widget(rect_buttons_layout_bottom)
 
-        Clock.schedule_interval(self.increase_yellow_bar, 0.3)  # Increase yellow bar width every 0.3 seconds
+        Clock.schedule_interval(self.increase_yellow_bar, 0.1)  # Increase yellow bar width every 0.3 seconds
 
         return self.main_layout
 
