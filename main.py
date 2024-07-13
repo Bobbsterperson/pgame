@@ -7,15 +7,15 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
 from kivy.clock import Clock
-import constants
-
 kivy.require('2.0.0')
+import constants
 
 class MainApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.current_image_index = 0
         self.current_theme_index = 0
+        self.red_bar_width = 300  # Initial width of the red bar
 
     def change_theme_next(self, instance):
         self.current_theme_index = (self.current_theme_index + 1) % len(constants.background_color)
@@ -59,38 +59,38 @@ class MainApp(App):
 
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
+            self.decrease_red_bar()
             self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
 
     def on_touch_piss(self, instance, touch):
         if instance.collide_point(*touch.pos):
             self.show_overlay_for_duration('assets/piss.png', touch.pos, 'piss')
 
+    def decrease_red_bar(self):
+        self.red_bar_width -= 20  # Decrease the width of the red bar
+        if self.red_bar_width < 0:
+            self.red_bar_width = 0  # Ensure the width doesn't go negative
+        self.red_bar.size = (self.red_bar_width, 20)  # Update the size of the red bar
+
     def quit_app(self, instance):
         App.get_running_app().stop()
 
     def build(self):
         Window.size = (600, 1000)
-        
-        # Main layout
-        self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
-        
-        # First health bar (at the top)
-        health_bar1 = Image(source='assets/health_bar.png', size_hint=(1, 0.02), allow_stretch=True)
-        self.main_layout.add_widget(health_bar1)
-        
-        # Second health bar (below the first one)
-        health_bar2 = Image(source='assets/health_bar.png', size_hint=(1, 0.02), allow_stretch=True)
-        self.main_layout.add_widget(health_bar2)
-        
-        # Image with the main content
         self.image = Image(source=constants.PICS[0], size_hint=(1, 0.5), allow_stretch=True)
+        self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        with self.main_layout.canvas.before:
+            Color(*constants.background_color[self.current_theme_index])
+            self.rect = Rectangle(size=Window.size, pos=self.main_layout.pos)
         self.main_layout.add_widget(self.image)
         
-        # Overlay rectangle
         with self.main_layout.canvas:
             self.overlay_rect = Rectangle(size=self.image.size, pos=self.image.pos)
         
-        # Top buttons
+        with self.main_layout.canvas.after:
+            Color(1, 0, 0, 1)
+            self.red_bar = Rectangle(size=(self.red_bar_width, 20), pos=(50, self.image.pos[1] + self.image.height * 9.7))  # Position above the image
+
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
         self.left = Button(text='Left', background_color=constants.most_buttons_color[self.current_theme_index])
         self.walk = Button(text='Walk', background_color=constants.most_buttons_color[self.current_theme_index])
@@ -98,37 +98,43 @@ class MainApp(App):
         self.left.bind(on_press=self.change_image_next)
         self.walk.bind(on_press=self.change_image_next)
         self.right.bind(on_press=self.change_image_next)
+
         rect_buttons_layout_top.add_widget(self.left)
         rect_buttons_layout_top.add_widget(self.walk)
         rect_buttons_layout_top.add_widget(self.right)
+        
         self.main_layout.add_widget(rect_buttons_layout_top)
         
-        # Bottom buttons
         square_buttons_layout = GridLayout(cols=2, size_hint=(1, 0.3), spacing=10)
         self.btn_punch = Button(text='Punch', background_color=constants.mid_btns_color[self.current_theme_index])
         self.btn_piss = Button(text='Piss', background_color=constants.mid_btns_color[self.current_theme_index])
+        
         self.btn_punch.bind(on_touch_down=self.on_touch_punch)
         self.btn_piss.bind(on_touch_down=self.on_touch_piss)
+        
         square_buttons_layout.add_widget(self.btn_punch)
         square_buttons_layout.add_widget(self.btn_piss)
+        
         self.main_layout.add_widget(square_buttons_layout)
         
-        # Footer buttons
         rect_buttons_layout_bottom = GridLayout(cols=6, size_hint=(1, 0.05), spacing=10)
         self.items = Button(text='items', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
         self.stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
         self.entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
+        
         self.censor = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
         self.theme = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
         self.quit = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
         self.quit.bind(on_press=self.quit_app)
         self.theme.bind(on_press=self.change_theme_next)
+        
         rect_buttons_layout_bottom.add_widget(self.items)
         rect_buttons_layout_bottom.add_widget(self.stats)
         rect_buttons_layout_bottom.add_widget(self.entities)
         rect_buttons_layout_bottom.add_widget(self.censor)
         rect_buttons_layout_bottom.add_widget(self.theme)
         rect_buttons_layout_bottom.add_widget(self.quit)
+        
         self.main_layout.add_widget(rect_buttons_layout_bottom)
         
         return self.main_layout
