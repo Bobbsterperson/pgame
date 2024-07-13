@@ -16,6 +16,7 @@ class MainApp(App):
         self.current_image_index = 0
         self.current_theme_index = 0
         self.red_bar_width = 300  # Initial width of the red bar
+        self.yellow_bar_width = 0  # Initial width of the yellow bar
 
     def change_theme_next(self, instance):
         self.current_theme_index = (self.current_theme_index + 1) % len(constants.background_color)
@@ -64,6 +65,7 @@ class MainApp(App):
 
     def on_touch_piss(self, instance, touch):
         if instance.collide_point(*touch.pos):
+            self.decrease_yellow_bar()
             self.show_overlay_for_duration('assets/piss.png', touch.pos, 'piss')
 
     def decrease_red_bar(self):
@@ -71,6 +73,18 @@ class MainApp(App):
         if self.red_bar_width < 0:
             self.red_bar_width = 0  # Ensure the width doesn't go negative
         self.red_bar.size = (self.red_bar_width, 20)  # Update the size of the red bar
+
+    def decrease_yellow_bar(self):
+        self.yellow_bar_width -= 20  # Decrease the width of the yellow bar
+        if self.yellow_bar_width < 0:
+            self.yellow_bar_width = 0  # Ensure the width doesn't go negative
+        self.yellow_bar.size = (self.yellow_bar_width, 20)  # Update the size of the yellow bar
+
+    def increase_yellow_bar(self, dt):
+        self.yellow_bar_width += 10  # Increase the width of the yellow bar
+        if self.yellow_bar_width > self.image.width / 1.16:
+            self.yellow_bar_width = self.image.width / 1.16  # Ensure the width doesn't exceed the image width
+        self.yellow_bar.size = (self.yellow_bar_width, 20)  # Update the size of the yellow bar
 
     def quit_app(self, instance):
         App.get_running_app().stop()
@@ -90,6 +104,9 @@ class MainApp(App):
         with self.main_layout.canvas.after:
             Color(1, 0, 0, 1)
             self.red_bar = Rectangle(size=(self.red_bar_width, 20), pos=(50, self.image.pos[1] + self.image.height * 9.7))  # Position above the image
+            
+            Color(1, 1, 0, 1)  # Yellow color
+            self.yellow_bar = Rectangle(size=(self.yellow_bar_width, 20), pos=(50, self.image.pos[1] + self.image.height * 9.5))  # Position above the red bar
 
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
         self.left = Button(text='Left', background_color=constants.most_buttons_color[self.current_theme_index])
@@ -137,6 +154,8 @@ class MainApp(App):
         
         self.main_layout.add_widget(rect_buttons_layout_bottom)
         
+        Clock.schedule_interval(self.increase_yellow_bar, 0.01)  # Increase yellow bar width every 0.6 seconds
+
         return self.main_layout
 
 if __name__ == '__main__':
