@@ -32,7 +32,7 @@ class MainApp(App):
         overlay_height = self.overlay_rect.size[1]
         
         if button_type == 'punch':
-            self.overlay_rect.pos = (touch_pos[0] + overlay_width / 8, touch_pos[1] + overlay_height + overlay_height / 2)
+            self.overlay_rect.pos = (touch_pos[0], touch_pos[1] + overlay_height + overlay_height / 2)
         elif button_type == 'piss':
             self.overlay_rect.pos = (touch_pos[0] - overlay_width, touch_pos[1] + overlay_height + overlay_height / 2)
 
@@ -55,15 +55,15 @@ class MainApp(App):
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
             self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
-            print(f"Punch button touched at position: {touch.pos}")
+            # print(f"Punch button touched at position: {touch.pos}")
 
     def on_touch_piss(self, instance, touch):
         if instance.collide_point(*touch.pos):
             self.show_overlay_for_duration('assets/piss.png', touch.pos, 'piss')
-            print(f"Piss button touched at position: {touch.pos}")
+            # print(f"Piss button touched at position: {touch.pos}")
 
     def build(self):
-        Window.size = (600, 1000)
+        # Window.size = (600, 1000)
         self.image = Image(source=PICS[0], size_hint=(1, 0.5), allow_stretch=True)
         
         main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
