@@ -125,6 +125,14 @@ class MainApp(App):
             Color(0.7, 0.7, 0, 0.5)
             self.yellow_bar = Rectangle(size=(self.yellow_bar_width, 20), pos=(50, self.image.pos[1] + self.image.height * 9.5))  # Position above the red bar
 
+            Color(1, 1, 1, 0.3)  # Adjust transparency (0.3 means 30% opacity)
+            overlay_width = Window.size[0] * 1.0  # Set overlay width to half of the window width
+            overlay_height = Window.size[1] * 0.05  # Set overlay height to 10% of the window height
+            overlay_pos_x = (Window.size[0] - overlay_width) / 2  # Center horizontally
+            overlay_pos_y = Window.size[1] * 0.95  # Position 10% from the top
+            self.additional_overlay = Rectangle(size=(overlay_width, overlay_height), pos=(overlay_pos_x, overlay_pos_y))
+
+
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
         self.left = Button(text='Left', background_color=constants.most_buttons_color[self.current_theme_index])
         self.walk = Button(text='Walk', background_color=constants.most_buttons_color[self.current_theme_index])
