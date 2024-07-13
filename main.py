@@ -36,21 +36,14 @@ class MainApp(App):
         elif button_type == 'piss':
             self.overlay_rect.pos = (touch_pos[0] - overlay_width, touch_pos[1] + overlay_height + overlay_height / 2)
 
-
-
-        
-
     def show_overlay_for_duration(self, image_path, touch_pos, button_type):
         self.update_overlay_image(image_path, touch_pos, button_type)
         Clock.schedule_once(self.hide_overlay, 1.0)
-
-
 
     def hide_overlay(self, dt):
         self.overlay_rect.source = ''
         self.overlay_rect.size = (0, 0)
         self.overlay_rect.pos = (0, 0)
-        
 
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
@@ -63,13 +56,13 @@ class MainApp(App):
             # print(f"Piss button touched at position: {touch.pos}")
 
     def build(self):
-        # Window.size = (600, 1000)
+        Window.size = (600, 1000)
         self.image = Image(source=PICS[0], size_hint=(1, 0.5), allow_stretch=True)
         
         main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         with main_layout.canvas.before:
-            Color(0.85, 0.3, 0.0, 1.0)
+            Color(0.2, 0.0, 0.2, 1.0)
             self.rect = Rectangle(size=Window.size, pos=main_layout.pos)
         
         main_layout.add_widget(self.image)
@@ -78,9 +71,9 @@ class MainApp(App):
             self.overlay_rect = Rectangle(size=self.image.size, pos=self.image.pos)
         
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
-        btn1 = Button(text='Left')
-        btn2 = Button(text='Walk')
-        btn3 = Button(text='Right')
+        btn1 = Button(text='Left', background_color=(0.5, 0.0, 0.5, 1))
+        btn2 = Button(text='Walk', background_color=(0.0, 0.5, 0.0, 1))
+        btn3 = Button(text='Right', background_color=(0.0, 0.0, 0.5, 1))
         
         btn1.bind(on_press=self.change_image_next)
         btn2.bind(on_press=self.change_image_next)
@@ -104,14 +97,21 @@ class MainApp(App):
         
         main_layout.add_widget(square_buttons_layout)
         
-        rect_buttons_layout_bottom = GridLayout(cols=3, size_hint=(1, 0.05), spacing=10)
-        btn6 = Button(text='items')
-        btn7 = Button(text='stats')
-        btn8 = Button(text='entities')
+        rect_buttons_layout_bottom = GridLayout(cols=6, size_hint=(1, 0.05), spacing=10)
+        items = Button(text='items', size_hint_x=0.7, size_hint_y=0.1)
+        stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1)
+        entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1)
         
-        rect_buttons_layout_bottom.add_widget(btn6)
-        rect_buttons_layout_bottom.add_widget(btn7)
-        rect_buttons_layout_bottom.add_widget(btn8)
+        new_button1 = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1)
+        new_button2 = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1)
+        new_button3 = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1)
+        
+        rect_buttons_layout_bottom.add_widget(items)
+        rect_buttons_layout_bottom.add_widget(stats)
+        rect_buttons_layout_bottom.add_widget(entities)
+        rect_buttons_layout_bottom.add_widget(new_button1)
+        rect_buttons_layout_bottom.add_widget(new_button2)
+        rect_buttons_layout_bottom.add_widget(new_button3)
         
         main_layout.add_widget(rect_buttons_layout_bottom)
         
