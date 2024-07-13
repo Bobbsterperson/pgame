@@ -11,6 +11,9 @@ from kivy.clock import Clock
 kivy.require('2.0.0')
 
 PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
+background_color = (0.2, 0.1, 0.2, 1.0)
+most_buttons_color = (0.3, 0.5, 0.0, 1)
+mid_btns_color = (0.3, 0.5, 0.4, 1)
 
 class MainApp(App):
     def __init__(self, **kwargs):
@@ -65,7 +68,7 @@ class MainApp(App):
         main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         with main_layout.canvas.before:
-            Color(0.2, 0.1, 0.2, 1.0)
+            Color(*background_color)
             self.rect = Rectangle(size=Window.size, pos=main_layout.pos)
         
         main_layout.add_widget(self.image)
@@ -74,23 +77,23 @@ class MainApp(App):
             self.overlay_rect = Rectangle(size=self.image.size, pos=self.image.pos)
         
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
-        btn1 = Button(text='Left', background_color=(0.3, 0.5, 0.0, 1))
-        btn2 = Button(text='Walk', background_color=(0.3, 0.5, 0.0, 1))
-        btn3 = Button(text='Right', background_color=(0.3, 0.5, 0.0, 1))
+        left = Button(text='Left', background_color=most_buttons_color)
+        walk = Button(text='Walk', background_color=most_buttons_color)
+        right = Button(text='Right', background_color=most_buttons_color)
         
-        btn1.bind(on_press=self.change_image_next)
-        btn2.bind(on_press=self.change_image_next)
-        btn3.bind(on_press=self.change_image_next)
+        left.bind(on_press=self.change_image_next)
+        walk.bind(on_press=self.change_image_next)
+        right.bind(on_press=self.change_image_next)
         
-        rect_buttons_layout_top.add_widget(btn1)
-        rect_buttons_layout_top.add_widget(btn2)
-        rect_buttons_layout_top.add_widget(btn3)
+        rect_buttons_layout_top.add_widget(left)
+        rect_buttons_layout_top.add_widget(walk)
+        rect_buttons_layout_top.add_widget(right)
         
         main_layout.add_widget(rect_buttons_layout_top)
         
         square_buttons_layout = GridLayout(cols=2, size_hint=(1, 0.3), spacing=10)
-        self.btn_punch = Button(text='Punch', background_color=(0.3, 0.5, 0.4, 1))
-        self.btn_piss = Button(text='Piss', background_color=(0.3, 0.5, 0.4, 1))
+        self.btn_punch = Button(text='Punch', background_color=mid_btns_color)
+        self.btn_piss = Button(text='Piss', background_color=mid_btns_color)
         
         self.btn_punch.bind(on_touch_down=self.on_touch_punch)
         self.btn_piss.bind(on_touch_down=self.on_touch_piss)
@@ -101,21 +104,21 @@ class MainApp(App):
         main_layout.add_widget(square_buttons_layout)
         
         rect_buttons_layout_bottom = GridLayout(cols=6, size_hint=(1, 0.05), spacing=10)
-        items = Button(text='items', size_hint_x=0.7, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
-        stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
-        entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
+        items = Button(text='items', size_hint_x=0.7, size_hint_y=0.1, background_color=most_buttons_color)
+        stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1, background_color=most_buttons_color)
+        entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1, background_color=most_buttons_color)
         
-        new_button1 = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
-        new_button2 = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
-        new_button3 = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
-        new_button3.bind(on_press=self.quit_app)
+        cencor = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1, background_color=most_buttons_color)
+        theme = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1, background_color=most_buttons_color)
+        quit = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1, background_color=most_buttons_color)
+        quit.bind(on_press=self.quit_app)
         
         rect_buttons_layout_bottom.add_widget(items)
         rect_buttons_layout_bottom.add_widget(stats)
         rect_buttons_layout_bottom.add_widget(entities)
-        rect_buttons_layout_bottom.add_widget(new_button1)
-        rect_buttons_layout_bottom.add_widget(new_button2)
-        rect_buttons_layout_bottom.add_widget(new_button3)
+        rect_buttons_layout_bottom.add_widget(cencor)
+        rect_buttons_layout_bottom.add_widget(theme)
+        rect_buttons_layout_bottom.add_widget(quit)
         
         main_layout.add_widget(rect_buttons_layout_bottom)
         
