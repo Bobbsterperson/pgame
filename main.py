@@ -15,7 +15,7 @@ class MainApp(App):
         super().__init__(**kwargs)
         self.current_image_index = 0
         self.current_theme_index = 0
-        self.red_bar_width = 300  # Initial width of the red bar
+        self.red_bar_width = 500  # Initial width of the red bar
         self.yellow_bar_width = 0  # Initial width of the yellow bar
 
     def change_theme_next(self, instance):
@@ -154,7 +154,7 @@ class MainApp(App):
         
         self.main_layout.add_widget(rect_buttons_layout_bottom)
         
-        Clock.schedule_interval(self.increase_yellow_bar, 0.01)  # Increase yellow bar width every 0.6 seconds
+        Clock.schedule_interval(self.increase_yellow_bar, 0.3)  # Increase yellow bar width every 0.6 seconds
 
         return self.main_layout
 
