@@ -79,6 +79,11 @@ class MainApp(App):
         if instance.collide_point(*touch.pos):
             self.hide_overlay(0)  # Immediately hide overlay when Piss button is released
 
+    def on_touch_punch(self, instance, touch):
+        if instance.collide_point(*touch.pos):
+            self.decrease_red_bar()
+            self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
+
     def decrease_red_bar(self):
         self.red_bar_width -= 20  # Decrease the width of the red bar
         if self.red_bar_width < 0:
@@ -138,7 +143,7 @@ class MainApp(App):
         self.btn_punch = Button(text='Punch', background_color=constants.mid_btns_color[self.current_theme_index])
         self.btn_piss = Button(text='Piss', background_color=constants.mid_btns_color[self.current_theme_index])
 
-        self.btn_punch.bind(on_touch_down=self.on_touch_piss_down)
+        self.btn_punch.bind(on_touch_down=self.on_touch_punch)
         self.btn_piss.bind(on_touch_down=self.on_touch_piss_down)
         self.btn_piss.bind(on_touch_up=self.on_touch_piss_up)
 
