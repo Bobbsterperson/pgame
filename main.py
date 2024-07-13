@@ -55,6 +55,9 @@ class MainApp(App):
             self.show_overlay_for_duration('assets/piss.png', touch.pos, 'piss')
             # print(f"Piss button touched at position: {touch.pos}")
 
+    def quit_app(self, instance):
+        App.get_running_app().stop()
+
     def build(self):
         Window.size = (600, 1000)
         self.image = Image(source=PICS[0], size_hint=(1, 0.5), allow_stretch=True)
@@ -62,7 +65,7 @@ class MainApp(App):
         main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         with main_layout.canvas.before:
-            Color(0.2, 0.0, 0.2, 1.0)
+            Color(0.2, 0.1, 0.2, 1.0)
             self.rect = Rectangle(size=Window.size, pos=main_layout.pos)
         
         main_layout.add_widget(self.image)
@@ -71,9 +74,9 @@ class MainApp(App):
             self.overlay_rect = Rectangle(size=self.image.size, pos=self.image.pos)
         
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
-        btn1 = Button(text='Left', background_color=(0.5, 0.0, 0.5, 1))
-        btn2 = Button(text='Walk', background_color=(0.0, 0.5, 0.0, 1))
-        btn3 = Button(text='Right', background_color=(0.0, 0.0, 0.5, 1))
+        btn1 = Button(text='Left', background_color=(0.3, 0.5, 0.0, 1))
+        btn2 = Button(text='Walk', background_color=(0.3, 0.5, 0.0, 1))
+        btn3 = Button(text='Right', background_color=(0.3, 0.5, 0.0, 1))
         
         btn1.bind(on_press=self.change_image_next)
         btn2.bind(on_press=self.change_image_next)
@@ -86,8 +89,8 @@ class MainApp(App):
         main_layout.add_widget(rect_buttons_layout_top)
         
         square_buttons_layout = GridLayout(cols=2, size_hint=(1, 0.3), spacing=10)
-        self.btn_punch = Button(text='Punch')
-        self.btn_piss = Button(text='Piss')
+        self.btn_punch = Button(text='Punch', background_color=(0.3, 0.5, 0.4, 1))
+        self.btn_piss = Button(text='Piss', background_color=(0.3, 0.5, 0.4, 1))
         
         self.btn_punch.bind(on_touch_down=self.on_touch_punch)
         self.btn_piss.bind(on_touch_down=self.on_touch_piss)
@@ -98,13 +101,14 @@ class MainApp(App):
         main_layout.add_widget(square_buttons_layout)
         
         rect_buttons_layout_bottom = GridLayout(cols=6, size_hint=(1, 0.05), spacing=10)
-        items = Button(text='items', size_hint_x=0.7, size_hint_y=0.1)
-        stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1)
-        entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1)
+        items = Button(text='items', size_hint_x=0.7, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
+        stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
+        entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
         
-        new_button1 = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1)
-        new_button2 = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1)
-        new_button3 = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1)
+        new_button1 = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
+        new_button2 = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
+        new_button3 = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1, background_color=(0.3, 0.5, 0.0, 1))
+        new_button3.bind(on_press=self.quit_app)
         
         rect_buttons_layout_bottom.add_widget(items)
         rect_buttons_layout_bottom.add_widget(stats)
