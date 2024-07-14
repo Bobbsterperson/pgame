@@ -13,7 +13,7 @@ class MainApp(App):
         super().__init__(**kwargs)
         self.current_image_index = 0
         self.current_theme_index = 0
-        self.red_bar_width = 500  # Initial width of the red bar
+        self.red_bar_width = 0  # Initial width of the red bar (will be set dynamically)
         self.yellow_bar_width = 0  # Initial width of the yellow bar
         self.piss_button_pressed = False  # Track if Piss button is pressed
         self.yellow_bar_decrease_event = None  # Event to decrease yellow bar
@@ -87,10 +87,12 @@ class MainApp(App):
             self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
 
     def decrease_red_bar(self):
-        self.red_bar_width -= 20  # Decrease the width of the red bar
+        # Decrease the red bar width by a fixed amount each time it's called
+        decrement = 20
+        self.red_bar_width -= decrement
         if self.red_bar_width < 0:
             self.red_bar_width = 0  # Ensure the width doesn't go negative
-        self.red_bar.size = (self.red_bar_width, 20)  # Update the size of the red bar
+        self.red_bar.size = (self.red_bar_width, 20)
 
     def decrease_yellow_bar(self, dt):
         if self.piss_button_pressed:  # Check if Piss button is held down
@@ -100,7 +102,7 @@ class MainApp(App):
             self.yellow_bar.size = (self.yellow_bar_width, 20)  # Update the size of the yellow bar
 
     def increase_yellow_bar(self, dt):
-        overlay_width = Window.size[0] * 1.0 - 20  # Width of the yellow bar (overlay width minus padding)
+        overlay_width = self.additional_overlay.size[0] - 20  # Width of the yellow bar (overlay width minus padding)
         self.yellow_bar_width += 5  # Increase the width of the yellow bar
         if self.yellow_bar_width > overlay_width:
             self.yellow_bar_width = overlay_width  # Ensure the width doesn't exceed the overlay width
@@ -110,7 +112,7 @@ class MainApp(App):
         App.get_running_app().stop()
 
     def build(self):
-        # Window.size = (600, 1000)
+        Window.size = (600, 1000)
         self.image = Image(source=constants.PICS[0], size_hint=(1, 0.5), allow_stretch=True)
         self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         with self.main_layout.canvas.before:
@@ -129,12 +131,15 @@ class MainApp(App):
             overlay_pos_y = Window.size[1] * 0.97  # Position at the top of the window
             self.additional_overlay = Rectangle(size=(overlay_width, overlay_height), pos=(overlay_pos_x, overlay_pos_y))
 
+            # Calculate the initial width of the red bar to match the overlay width
+            self.red_bar_width = overlay_width - 20  # Subtract padding
+
             # Position red and yellow bars inside the additional_overlay
             bar_y_pos = overlay_pos_y + (overlay_height - 20) / 2  # Center vertically within the overlay
             bar_width = overlay_width - 20  # Width of the bars (overlay width minus padding)
 
             Color(0.7, 0, 0, 1)
-            self.red_bar = Rectangle(size=(bar_width, 20), pos=(overlay_pos_x + 10, bar_y_pos))  # Position inside the overlay with some padding
+            self.red_bar = Rectangle(size=(self.red_bar_width, 20), pos=(overlay_pos_x + 10, bar_y_pos))  # Position inside the overlay with some padding
 
             Color(0.7, 0.7, 0, 0.5)
             self.yellow_bar = Rectangle(size=(self.yellow_bar_width, 20), pos=(overlay_pos_x + 10, bar_y_pos))  # Position inside the overlay with some padding
