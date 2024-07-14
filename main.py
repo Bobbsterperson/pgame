@@ -54,6 +54,8 @@ class MainApp(App):
         if button_type == 'piss':
             self.piss_button_pressed = True  # Set flag when Piss button is pressed
             self.start_yellow_bar_decrease_event()
+        if button_type == 'punch':
+            Clock.schedule_once(self.hide_overlay, 0.5)  # Hide punch overlay after 0.5 seconds
 
     def hide_overlay(self, dt):
         self.overlay_rect.source = ''
@@ -98,16 +100,17 @@ class MainApp(App):
             self.yellow_bar.size = (self.yellow_bar_width, 20)  # Update the size of the yellow bar
 
     def increase_yellow_bar(self, dt):
-        self.yellow_bar_width += 5 # Increase the width of the yellow bar
-        if self.yellow_bar_width > self.image.width / 1.16:
-            self.yellow_bar_width = self.image.width / 1.16  # Ensure the width doesn't exceed the image width
+        overlay_width = Window.size[0] * 1.0 - 20  # Width of the yellow bar (overlay width minus padding)
+        self.yellow_bar_width += 5  # Increase the width of the yellow bar
+        if self.yellow_bar_width > overlay_width:
+            self.yellow_bar_width = overlay_width  # Ensure the width doesn't exceed the overlay width
         self.yellow_bar.size = (self.yellow_bar_width, 20)  # Update the size of the yellow bar
 
     def quit_app(self, instance):
         App.get_running_app().stop()
 
     def build(self):
-        Window.size = (600, 1000)
+        # Window.size = (600, 1000)
         self.image = Image(source=constants.PICS[0], size_hint=(1, 0.5), allow_stretch=True)
         self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         with self.main_layout.canvas.before:
@@ -119,19 +122,22 @@ class MainApp(App):
             self.overlay_rect = Rectangle(size=self.image.size, pos=self.image.pos)
 
         with self.main_layout.canvas.after:
-            Color(0.7, 0, 0, 1)
-            self.red_bar = Rectangle(size=(self.red_bar_width, 20), pos=(50, self.image.pos[1] + self.image.height * 9.7))  # Position above the image
-
-            Color(0.7, 0.7, 0, 0.5)
-            self.yellow_bar = Rectangle(size=(self.yellow_bar_width, 20), pos=(50, self.image.pos[1] + self.image.height * 9.5))  # Position above the red bar
-
             Color(1, 1, 1, 0.3)  # Adjust transparency (0.3 means 30% opacity)
-            overlay_width = Window.size[0] * 1.0  # Set overlay width to half of the window width
-            overlay_height = Window.size[1] * 0.05  # Set overlay height to 10% of the window height
+            overlay_width = Window.size[0] * 1.0  # Set overlay width to the entire window width
+            overlay_height = Window.size[1] * 0.03  # Set overlay height to 5% of the window height
             overlay_pos_x = (Window.size[0] - overlay_width) / 2  # Center horizontally
-            overlay_pos_y = Window.size[1] * 0.95  # Position 10% from the top
+            overlay_pos_y = Window.size[1] * 0.97  # Position at the top of the window
             self.additional_overlay = Rectangle(size=(overlay_width, overlay_height), pos=(overlay_pos_x, overlay_pos_y))
 
+            # Position red and yellow bars inside the additional_overlay
+            bar_y_pos = overlay_pos_y + (overlay_height - 20) / 2  # Center vertically within the overlay
+            bar_width = overlay_width - 20  # Width of the bars (overlay width minus padding)
+
+            Color(0.7, 0, 0, 1)
+            self.red_bar = Rectangle(size=(bar_width, 20), pos=(overlay_pos_x + 10, bar_y_pos))  # Position inside the overlay with some padding
+
+            Color(0.7, 0.7, 0, 0.5)
+            self.yellow_bar = Rectangle(size=(self.yellow_bar_width, 20), pos=(overlay_pos_x + 10, bar_y_pos))  # Position inside the overlay with some padding
 
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
         self.left = Button(text='Left', background_color=constants.most_buttons_color[self.current_theme_index])
@@ -180,7 +186,7 @@ class MainApp(App):
 
         self.main_layout.add_widget(rect_buttons_layout_bottom)
 
-        Clock.schedule_interval(self.increase_yellow_bar, 0.1)  # Increase yellow bar width every 0.3 seconds
+        Clock.schedule_interval(self.increase_yellow_bar, 0.1)  # Increase yellow bar width every 0.1 seconds
 
         return self.main_layout
 
