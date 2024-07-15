@@ -15,12 +15,13 @@ class MainApp(App):
         super().__init__(**kwargs)
         self.current_image_index = 0
         self.current_theme_index = 0
-        self.current_piss_index = 0  # To track the current PISS image
+        self.current_piss_index = 0
         self.red_bar_width = 0
         self.yellow_bar_width = 0
         self.piss_button_pressed = False
+        self.punch_button_pressed = False
         self.yellow_bar_decrease_event = None
-        self.piss_image_cycle_event = None  # Event to cycle PISS images
+        self.piss_image_cycle_event = None
 
     def change_theme_next(self, instance):
         stuff.change_theme_next(self)
@@ -40,16 +41,21 @@ class MainApp(App):
         self.overlay_rect.size = (self.image.width * 0.3, self.image.height * 1.9)
         overlay_width = self.overlay_rect.size[0]
         overlay_height = self.overlay_rect.size[1]
+
         if button_type == 'punch':
             start_pos = (touch_pos[0] + overlay_width / 2, touch_pos[1] - overlay_height * 1.5)
             end_pos = (touch_pos[0] + overlay_width / 3, touch_pos[1] - overlay_height / 4)
             self.animate_overlay_position(start_pos, end_pos)
         elif button_type == 'piss':
-            self.overlay_rect.pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height / 4)
+            start_pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height * 1.5)
+            end_pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height / 4)
+            self.animate_overlay_position(start_pos, end_pos, image_path)
 
-    def animate_overlay_position(self, start_pos, end_pos):
+    def animate_overlay_position(self, start_pos, end_pos, image_path=None):
         self.overlay_rect.pos = start_pos
-        anim = Animation(pos=end_pos, duration=0.3)
+        anim = Animation(pos=end_pos, duration=0.4)
+        if image_path:
+            anim.bind(on_complete=lambda *args: self.start_piss_image_cycle(image_path, end_pos))
         anim.start(self.overlay_rect)
 
     def show_overlay_for_duration(self, image_path, touch_pos, button_type):
@@ -57,8 +63,8 @@ class MainApp(App):
         if button_type == 'piss':
             self.piss_button_pressed = True
             self.start_yellow_bar_decrease_event()
-            self.start_piss_image_cycle(touch_pos)
-        if button_type == 'punch':
+        elif button_type == 'punch':
+            self.punch_button_pressed = True
             Clock.schedule_once(self.hide_overlay, 0.5)
 
     def hide_overlay(self, dt):
@@ -68,6 +74,7 @@ class MainApp(App):
         self.stop_yellow_bar_decrease_event()
         self.stop_piss_image_cycle()
         self.piss_button_pressed = False
+        self.punch_button_pressed = False
 
     def start_yellow_bar_decrease_event(self):
         if not self.yellow_bar_decrease_event:
@@ -78,30 +85,37 @@ class MainApp(App):
             self.yellow_bar_decrease_event.cancel()
             self.yellow_bar_decrease_event = None
 
-    def start_piss_image_cycle(self, touch_pos):
-        self.piss_image_cycle_event = Clock.schedule_interval(lambda dt: self.cycle_piss_images(touch_pos), 0.1)
+    def start_piss_image_cycle(self, image_path, pos):
+        self.current_piss_index = 0
+        self.cycle_piss_images(image_path, pos)
+        self.piss_image_cycle_event = Clock.schedule_interval(lambda dt: self.cycle_piss_images(image_path, pos), 0.06)
 
     def stop_piss_image_cycle(self):
         if self.piss_image_cycle_event:
             self.piss_image_cycle_event.cancel()
             self.piss_image_cycle_event = None
 
-    def cycle_piss_images(self, touch_pos):
+    def cycle_piss_images(self, image_path, pos):
         self.current_piss_index += 1
         if self.current_piss_index >= len(constants.PISS):
             self.current_piss_index = 0
-        self.update_overlay_image(constants.PISS[self.current_piss_index], touch_pos, 'piss')
+        next_image = constants.PISS[self.current_piss_index]
+        self.overlay_rect.source = next_image
+        self.overlay_rect.pos = pos
 
     def on_touch_piss_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
+            self.piss_button_pressed = True
             self.show_overlay_for_duration(constants.PISS[0], touch.pos, 'piss')
 
     def on_touch_piss_up(self, instance, touch):
-        if instance.collide_point(*touch.pos):
-            self.hide_overlay(0)  # Immediately hide overlay when Piss button is released
+        if self.piss_button_pressed:
+            self.hide_overlay(0)
+            self.piss_button_pressed = False
 
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
+            self.punch_button_pressed = True
             self.decrease_red_bar()
             self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
 
@@ -123,7 +137,7 @@ class MainApp(App):
         overlay_width = self.additional_overlay.size[0] - 20
         self.yellow_bar_width += 5
         if self.yellow_bar_width > overlay_width:
-            self.yellow_bar_width = overlay_width 
+            self.yellow_bar_width = overlay_width
         self.yellow_bar.size = (self.yellow_bar_width, 20)
 
     def quit_app(self, instance):
