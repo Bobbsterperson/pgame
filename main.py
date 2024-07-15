@@ -7,6 +7,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
 from kivy.clock import Clock
 import constants
+import stuff
 
 class MainApp(App):
     def __init__(self, **kwargs):
@@ -19,18 +20,10 @@ class MainApp(App):
         self.yellow_bar_decrease_event = None
 
     def change_theme_next(self, instance):
-        self.current_theme_index = (self.current_theme_index + 1) % len(constants.background_color)
-        self.update_theme()
+        stuff.change_theme_next(self)
 
     def update_theme(self):
-        self.main_layout.canvas.before.clear()
-        with self.main_layout.canvas.before:
-            Color(*constants.background_color[self.current_theme_index])
-            self.rect = Rectangle(size=Window.size, pos=self.main_layout.pos)
-        for button in [self.left, self.walk, self.right, self.items, self.stats, self.entities, self.censor, self.theme, self.quit]:
-            button.background_color = constants.most_buttons_color[self.current_theme_index]
-        self.btn_punch.background_color = constants.mid_btns_color[self.current_theme_index]
-        self.btn_piss.background_color = constants.mid_btns_color[self.current_theme_index]
+        stuff.update_theme(self)
 
     def change_image_next(self, instance):
         self.current_image_index += 1

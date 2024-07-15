@@ -1,6 +1,8 @@
 # Ignore everything in the root except these files
 *
 !main.py
+!constants.py
+!stuff.py
 !Pipfile
 !assets/
 
