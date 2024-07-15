@@ -6,6 +6,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
 from kivy.clock import Clock
+from kivy.animation import Animation
 import constants
 import stuff
 
@@ -14,12 +15,12 @@ class MainApp(App):
         super().__init__(**kwargs)
         self.current_image_index = 0
         self.current_theme_index = 0
-        self.current_piss_index = 0
+        self.current_piss_index = 0  # To track the current PISS image
         self.red_bar_width = 0
         self.yellow_bar_width = 0
         self.piss_button_pressed = False
         self.yellow_bar_decrease_event = None
-        self.piss_image_cycle_event = None
+        self.piss_image_cycle_event = None  # Event to cycle PISS images
 
     def change_theme_next(self, instance):
         stuff.change_theme_next(self)
@@ -36,13 +37,20 @@ class MainApp(App):
 
     def update_overlay_image(self, image_path, touch_pos, button_type):
         self.overlay_rect.source = image_path
-        self.overlay_rect.size = (self.image.width * 0.3, self.image.height * 1.7)
+        self.overlay_rect.size = (self.image.width * 0.3, self.image.height * 1.9)
         overlay_width = self.overlay_rect.size[0]
         overlay_height = self.overlay_rect.size[1]
         if button_type == 'punch':
-            self.overlay_rect.pos = (touch_pos[0] + overlay_width / 3, touch_pos[1] - overlay_height / 4)
+            start_pos = (touch_pos[0] + overlay_width / 2, touch_pos[1] - overlay_height * 1.5)
+            end_pos = (touch_pos[0] + overlay_width / 3, touch_pos[1] - overlay_height / 4)
+            self.animate_overlay_position(start_pos, end_pos)
         elif button_type == 'piss':
             self.overlay_rect.pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height / 4)
+
+    def animate_overlay_position(self, start_pos, end_pos):
+        self.overlay_rect.pos = start_pos
+        anim = Animation(pos=end_pos, duration=0.3)
+        anim.start(self.overlay_rect)
 
     def show_overlay_for_duration(self, image_path, touch_pos, button_type):
         self.update_overlay_image(image_path, touch_pos, button_type)
@@ -51,7 +59,7 @@ class MainApp(App):
             self.start_yellow_bar_decrease_event()
             self.start_piss_image_cycle(touch_pos)
         if button_type == 'punch':
-            Clock.schedule_once(self.hide_overlay, 0.3)
+            Clock.schedule_once(self.hide_overlay, 0.5)
 
     def hide_overlay(self, dt):
         self.overlay_rect.source = ''
