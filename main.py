@@ -36,7 +36,7 @@ class MainApp(App):
 
     def update_overlay_image(self, image_path, touch_pos, button_type):
         self.overlay_rect.source = image_path
-        self.overlay_rect.size = (self.image.width * 0.3, self.image.height * 1.9)
+        self.overlay_rect.size = (self.image.width * 0.3, self.image.height * 1.7)
         overlay_width = self.overlay_rect.size[0]
         overlay_height = self.overlay_rect.size[1]
         if button_type == 'punch':
@@ -122,7 +122,7 @@ class MainApp(App):
         App.get_running_app().stop()
 
     def build(self):
-        # Window.size = (600, 1000)
+        Window.size = (600, 1000)
         self.image = Image(source=constants.PICS[0], size_hint=(1, 0.5), allow_stretch=True)
         self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         with self.main_layout.canvas.before:
