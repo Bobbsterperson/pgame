@@ -1,5 +1,5 @@
 PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
-PISS = ['assets/piss.tiff', 'assets/piss2.tiff', 'assets/piss3.tiff', 'assets/piss4.tiff', 'assets/piss5.tiff', 'assets/piss6.tiff', 'assets/piss7.tiff', 'assets/piss8.tiff', 'assets/piss9.tiff']
+PISS = ['assets/piss.png', 'assets/piss2.png', 'assets/piss3.png', 'assets/piss4.png', 'assets/piss5.png', 'assets/piss6.png', 'assets/piss7.png', 'assets/piss8.png', 'assets/piss9.png']
 
 background_color = [
                     (0.3, 0.3, 0.3, 1.0),
