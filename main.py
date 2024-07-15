@@ -14,10 +14,12 @@ class MainApp(App):
         super().__init__(**kwargs)
         self.current_image_index = 0
         self.current_theme_index = 0
+        self.current_piss_index = 0
         self.red_bar_width = 0
         self.yellow_bar_width = 0
         self.piss_button_pressed = False
         self.yellow_bar_decrease_event = None
+        self.piss_image_cycle_event = None
 
     def change_theme_next(self, instance):
         stuff.change_theme_next(self)
@@ -47,6 +49,7 @@ class MainApp(App):
         if button_type == 'piss':
             self.piss_button_pressed = True
             self.start_yellow_bar_decrease_event()
+            self.start_piss_image_cycle(touch_pos)
         if button_type == 'punch':
             Clock.schedule_once(self.hide_overlay, 0.3)
 
@@ -55,6 +58,7 @@ class MainApp(App):
         self.overlay_rect.size = (0, 0)
         self.overlay_rect.pos = (0, 0)
         self.stop_yellow_bar_decrease_event()
+        self.stop_piss_image_cycle()
         self.piss_button_pressed = False
 
     def start_yellow_bar_decrease_event(self):
@@ -66,9 +70,23 @@ class MainApp(App):
             self.yellow_bar_decrease_event.cancel()
             self.yellow_bar_decrease_event = None
 
+    def start_piss_image_cycle(self, touch_pos):
+        self.piss_image_cycle_event = Clock.schedule_interval(lambda dt: self.cycle_piss_images(touch_pos), 0.1)
+
+    def stop_piss_image_cycle(self):
+        if self.piss_image_cycle_event:
+            self.piss_image_cycle_event.cancel()
+            self.piss_image_cycle_event = None
+
+    def cycle_piss_images(self, touch_pos):
+        self.current_piss_index += 1
+        if self.current_piss_index >= len(constants.PISS):
+            self.current_piss_index = 0
+        self.update_overlay_image(constants.PISS[self.current_piss_index], touch_pos, 'piss')
+
     def on_touch_piss_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.show_overlay_for_duration('assets/piss.tiff', touch.pos, 'piss')
+            self.show_overlay_for_duration(constants.PISS[0], touch.pos, 'piss')
 
     def on_touch_piss_up(self, instance, touch):
         if instance.collide_point(*touch.pos):
