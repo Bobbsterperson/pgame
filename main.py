@@ -34,13 +34,13 @@ class MainApp(App):
 
     def update_overlay_image(self, image_path, touch_pos, button_type):
         self.overlay_rect.source = image_path
-        self.overlay_rect.size = (self.image.width * 0.5, self.image.height * 0.5)
+        self.overlay_rect.size = (self.image.width * 0.3, self.image.height * 1.9)
         overlay_width = self.overlay_rect.size[0]
         overlay_height = self.overlay_rect.size[1]
         if button_type == 'punch':
-            self.overlay_rect.pos = (touch_pos[0], touch_pos[1] + overlay_height + overlay_height / 2)
+            self.overlay_rect.pos = (touch_pos[0] + overlay_width / 3, touch_pos[1] - overlay_height / 4)
         elif button_type == 'piss':
-            self.overlay_rect.pos = (touch_pos[0] - overlay_width, touch_pos[1] + overlay_height + overlay_height / 2)
+            self.overlay_rect.pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height / 4)
 
     def show_overlay_for_duration(self, image_path, touch_pos, button_type):
         self.update_overlay_image(image_path, touch_pos, button_type)
@@ -48,7 +48,7 @@ class MainApp(App):
             self.piss_button_pressed = True
             self.start_yellow_bar_decrease_event()
         if button_type == 'punch':
-            Clock.schedule_once(self.hide_overlay, 0.1)
+            Clock.schedule_once(self.hide_overlay, 0.3)
 
     def hide_overlay(self, dt):
         self.overlay_rect.source = ''
@@ -68,7 +68,7 @@ class MainApp(App):
 
     def on_touch_piss_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.show_overlay_for_duration('assets/piss.png', touch.pos, 'piss')
+            self.show_overlay_for_duration('assets/piss.tiff', touch.pos, 'piss')
 
     def on_touch_piss_up(self, instance, touch):
         if instance.collide_point(*touch.pos):
