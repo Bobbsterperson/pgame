@@ -166,9 +166,9 @@ class MainApp(App):
             self.yellow_bar = Rectangle(size=(self.yellow_bar_width, 20), pos=(overlay_pos_x + 10, bar_y_pos))
 
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
-        self.left = Button(text='Left', background_color=constants.most_buttons_color[self.current_theme_index])
-        self.walk = Button(text='Walk', background_color=constants.most_buttons_color[self.current_theme_index])
-        self.right = Button(text='Right', background_color=constants.most_buttons_color[self.current_theme_index])
+        self.left = Button(text=constants.text_left, size_hint_x=1.0, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
+        self.walk = Button(text=constants.text_right, size_hint_x=1.0, size_hint_y=0.1,background_color=constants.most_buttons_color[self.current_theme_index])
+        self.right = Button(text='Walk', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='40sp')
         self.left.bind(on_press=self.change_image_next)
         self.walk.bind(on_press=self.change_image_next)
         self.right.bind(on_press=self.change_image_next)
@@ -191,13 +191,13 @@ class MainApp(App):
         self.main_layout.add_widget(square_buttons_layout)
 
         rect_buttons_layout_bottom = GridLayout(cols=6, size_hint=(1, 0.05), spacing=10)
-        self.items = Button(text='items', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
-        self.stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
-        self.entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
+        self.items = Button(text='items', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='25sp')
+        self.stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='25sp')
+        self.entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='25sp')
 
-        self.censor = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
-        self.theme = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
-        self.quit = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
+        self.censor = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='15sp')
+        self.theme = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='15sp')
+        self.quit = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='15sp')
         self.quit.bind(on_press=self.quit_app)
         self.theme.bind(on_press=self.change_theme_next)
 

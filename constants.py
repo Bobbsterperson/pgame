@@ -1,5 +1,16 @@
 from kivy.core.audio import SoundLoader
 
+
+text_left = """
+                maybe for taking
+                turns but
+                for accepting or
+                denying quests
+                """
+text_right = "Look right."
+
+
+
 PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
 PISS = ['assets/piss.png', 'assets/piss4.png', 'assets/piss6.png', 'assets/piss7.png', 'assets/piss8.png']
 # , 'assets/piss2.png'
