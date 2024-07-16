@@ -20,8 +20,7 @@ class MainApp(App):
         self.yellow_bar_width = 0
         self.piss_button_pressed = False
         self.punch_button_pressed = False
-        self.yellow_bar_decrease_event = None
-        self.piss_image_cycle_event = None
+        self.global_event = None
 
     def change_theme_next(self, instance):
         stuff.change_theme_next(self)
@@ -62,7 +61,6 @@ class MainApp(App):
         self.update_overlay_image(image_path, touch_pos, button_type)
         if button_type == 'piss':
             self.piss_button_pressed = True
-            self.start_yellow_bar_decrease_event()
         elif button_type == 'punch':
             self.punch_button_pressed = True
             Clock.schedule_once(self.hide_overlay, 0.5)
@@ -71,29 +69,12 @@ class MainApp(App):
         self.overlay_rect.source = ''
         self.overlay_rect.size = (0, 0)
         self.overlay_rect.pos = (0, 0)
-        self.stop_yellow_bar_decrease_event()
-        self.stop_piss_image_cycle()
         self.piss_button_pressed = False
         self.punch_button_pressed = False
-
-    def start_yellow_bar_decrease_event(self):
-        if not self.yellow_bar_decrease_event:
-            self.yellow_bar_decrease_event = Clock.schedule_interval(self.decrease_yellow_bar, 0.1)
-
-    def stop_yellow_bar_decrease_event(self):
-        if self.yellow_bar_decrease_event:
-            self.yellow_bar_decrease_event.cancel()
-            self.yellow_bar_decrease_event = None
 
     def start_piss_image_cycle(self, image_path, pos):
         self.current_piss_index = 0
         self.cycle_piss_images(image_path, pos)
-        self.piss_image_cycle_event = Clock.schedule_interval(lambda dt: self.cycle_piss_images(image_path, pos), 0.06)
-
-    def stop_piss_image_cycle(self):
-        if self.piss_image_cycle_event:
-            self.piss_image_cycle_event.cancel()
-            self.piss_image_cycle_event = None
 
     def cycle_piss_images(self, image_path, pos):
         self.current_piss_index += 1
@@ -126,19 +107,26 @@ class MainApp(App):
             self.red_bar_width = 0
         self.red_bar.size = (self.red_bar_width, 20)
 
-    def decrease_yellow_bar(self, dt):
+    def decrease_yellow_bar(self):
         if self.piss_button_pressed:
             self.yellow_bar_width -= 15
             if self.yellow_bar_width < 0:
                 self.yellow_bar_width = 0
             self.yellow_bar.size = (self.yellow_bar_width, 20)
 
-    def increase_yellow_bar(self, dt):
+    def increase_yellow_bar(self):
         overlay_width = self.additional_overlay.size[0] - 20
         self.yellow_bar_width += 5
         if self.yellow_bar_width > overlay_width:
             self.yellow_bar_width = overlay_width
         self.yellow_bar.size = (self.yellow_bar_width, 20)
+
+    def global_event_callback(self, dt):
+        if self.piss_button_pressed:
+            self.decrease_yellow_bar()
+            self.cycle_piss_images(constants.PISS[self.current_piss_index], self.overlay_rect.pos)
+        else:
+            self.increase_yellow_bar()
 
     def quit_app(self, instance):
         App.get_running_app().stop()
@@ -214,7 +202,9 @@ class MainApp(App):
         rect_buttons_layout_bottom.add_widget(self.theme)
         rect_buttons_layout_bottom.add_widget(self.quit)
         self.main_layout.add_widget(rect_buttons_layout_bottom)
-        Clock.schedule_interval(self.increase_yellow_bar, 0.1)
+        
+        self.global_event = Clock.schedule_interval(self.global_event_callback, 0.1)
+
         return self.main_layout
 
 if __name__ == '__main__':
