@@ -10,7 +10,6 @@ from kivy.animation import Animation
 import constants
 import stuff
 
-
 class MainApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -22,6 +21,7 @@ class MainApp(App):
         self.piss_button_pressed = False
         self.punch_button_pressed = False
         self.global_event = None
+        self.original_pos = (0, 0)  # To store the original position
 
     def change_theme_next(self, instance):
         stuff.change_theme_next(self)
@@ -55,7 +55,10 @@ class MainApp(App):
             constants.piss_sound.loop = True
 
     def animate_overlay_position(self, start_pos, end_pos, image_path=None):
+        self.original_pos = start_pos
         self.overlay_rect.pos = start_pos
+        self.btn_punch.disabled = True
+        self.btn_piss.disabled = True
         anim = Animation(pos=end_pos, duration=0.4)
         if image_path:
             anim.bind(on_complete=lambda *args: self.start_piss_image_cycle(image_path, end_pos))
@@ -67,14 +70,21 @@ class MainApp(App):
             self.piss_button_pressed = True
         elif button_type == 'punch':
             self.punch_button_pressed = True
-            Clock.schedule_once(self.hide_overlay, 0.5)
+            Clock.schedule_once(self.hide_overlay, 0.7)
 
     def hide_overlay(self, dt):
+        anim = Animation(pos=self.original_pos, duration=0.4)
+        anim.bind(on_complete=self.reset_overlay)
+        anim.start(self.overlay_rect)
+
+    def reset_overlay(self, *args):
         self.overlay_rect.source = ''
         self.overlay_rect.size = (0, 0)
         self.overlay_rect.pos = (0, 0)
         self.piss_button_pressed = False
         self.punch_button_pressed = False
+        self.btn_punch.disabled = False
+        self.btn_piss.disabled = False
 
     def start_piss_image_cycle(self, image_path, pos):
         self.current_piss_index = 0
@@ -104,6 +114,11 @@ class MainApp(App):
             self.punch_button_pressed = True
             self.decrease_red_bar()
             self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
+
+    def on_touch_punch_up(self, instance, touch):
+        if self.punch_button_pressed:
+            self.hide_overlay(0)
+            self.punch_button_pressed = False
 
     def decrease_red_bar(self):
         decrement = 10
@@ -185,6 +200,7 @@ class MainApp(App):
         self.btn_punch.bind(on_touch_down=self.on_touch_punch)
         self.btn_piss.bind(on_touch_down=self.on_touch_piss_down)
         self.btn_piss.bind(on_touch_up=self.on_touch_piss_up)
+        self.btn_punch.bind(on_touch_up=self.on_touch_punch_up)
 
         square_buttons_layout.add_widget(self.btn_punch)
         square_buttons_layout.add_widget(self.btn_piss)
