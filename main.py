@@ -10,6 +10,7 @@ from kivy.animation import Animation
 import constants
 import stuff
 
+
 class MainApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -45,10 +46,13 @@ class MainApp(App):
             start_pos = (touch_pos[0] + overlay_width / 2, touch_pos[1] - overlay_height * 1.5)
             end_pos = (touch_pos[0] + overlay_width / 3, touch_pos[1] - overlay_height / 4)
             self.animate_overlay_position(start_pos, end_pos)
+            constants.punch_sound.play()
         elif button_type == 'piss':
             start_pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height * 1.5)
             end_pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height / 4)
             self.animate_overlay_position(start_pos, end_pos, image_path)
+            constants.piss_sound.play()
+            constants.piss_sound.loop = True
 
     def animate_overlay_position(self, start_pos, end_pos, image_path=None):
         self.overlay_rect.pos = start_pos
@@ -92,6 +96,7 @@ class MainApp(App):
     def on_touch_piss_up(self, instance, touch):
         if self.piss_button_pressed:
             self.hide_overlay(0)
+            constants.piss_sound.stop()
             self.piss_button_pressed = False
 
     def on_touch_punch(self, instance, touch):
@@ -101,7 +106,7 @@ class MainApp(App):
             self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
 
     def decrease_red_bar(self):
-        decrement = 20
+        decrement = 10
         self.red_bar_width -= decrement
         if self.red_bar_width < 0:
             self.red_bar_width = 0
@@ -119,6 +124,7 @@ class MainApp(App):
         self.yellow_bar_width += 5
         if self.yellow_bar_width > overlay_width:
             self.yellow_bar_width = overlay_width
+            self.decrease_red_bar()
         self.yellow_bar.size = (self.yellow_bar_width, 20)
 
     def global_event_callback(self, dt):

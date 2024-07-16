@@ -1,3 +1,5 @@
+from kivy.core.audio import SoundLoader
+
 PICS = ['assets/img1.jpg', 'assets/img2.jpg', 'assets/img3.jpg', 'assets/img4.jpg', 'assets/img5.jpg', 'assets/img6.jpg', 'assets/img7.jpg', 'assets/img8.jpg', 'assets/img9.jpg']
 PISS = ['assets/piss.png', 'assets/piss4.png', 'assets/piss6.png', 'assets/piss7.png', 'assets/piss8.png']
 # , 'assets/piss2.png'
@@ -33,3 +35,7 @@ mid_btns_color = [
                   ]
 
 
+PISS_SOUND_PATH = 'assets/piss.wav'
+PUNCH_SOUND_PATH = 'assets/punch.wav'
+piss_sound = SoundLoader.load(PISS_SOUND_PATH)
+punch_sound = SoundLoader.load(PUNCH_SOUND_PATH)
