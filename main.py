@@ -21,7 +21,9 @@ class MainApp(App):
         self.piss_button_pressed = False
         self.punch_button_pressed = False
         self.global_event = None
-        self.original_pos = (0, 0)  # To store the original position
+        self.start_pos = (0, 0)
+        self.piss_button_held = False
+        self.piss_pos = None
 
     def change_theme_next(self, instance):
         stuff.change_theme_next(self)
@@ -41,28 +43,37 @@ class MainApp(App):
         self.overlay_rect.size = (self.image.width * 0.3, self.image.height * 1.9)
         overlay_width = self.overlay_rect.size[0]
         overlay_height = self.overlay_rect.size[1]
-
         if button_type == 'punch':
             start_pos = (touch_pos[0] + overlay_width / 2, touch_pos[1] - overlay_height * 1.5)
             end_pos = (touch_pos[0] + overlay_width / 3, touch_pos[1] - overlay_height / 4)
-            self.animate_overlay_position(start_pos, end_pos)
-            constants.punch_sound.play()
+            self.animate_punch_overlay(start_pos, end_pos)
         elif button_type == 'piss':
             start_pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height * 1.5)
             end_pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height / 4)
-            self.animate_overlay_position(start_pos, end_pos, image_path)
-            constants.piss_sound.play()
-            constants.piss_sound.loop = True
+            self.animate_piss_overlay(start_pos, end_pos, image_path)
 
-    def animate_overlay_position(self, start_pos, end_pos, image_path=None):
-        self.original_pos = start_pos
+    def animate_punch_overlay(self, start_pos, end_pos, image_path=None):
+        self.start_pos = start_pos
         self.overlay_rect.pos = start_pos
-        self.btn_punch.disabled = True
-        self.btn_piss.disabled = True
-        anim = Animation(pos=end_pos, duration=0.4)
+        anim_to_end = Animation(pos=end_pos, duration=0.4)
+        anim_to_start = Animation(pos=self.start_pos, duration=0.6)
+        anim_to_end.bind(on_complete=lambda *args: anim_to_start.start(self.overlay_rect))
+        constants.punch_sound.play()
         if image_path:
-            anim.bind(on_complete=lambda *args: self.start_piss_image_cycle(image_path, end_pos))
-        anim.start(self.overlay_rect)
+            anim_to_end.bind(on_complete=lambda *args: self.start_piss_image_cycle(image_path, end_pos))
+        anim_to_end.start(self.overlay_rect)
+
+    def animate_piss_overlay(self, start_pos, end_pos, image_path=None):
+        self.start_pos = start_pos
+        self.overlay_rect.pos = start_pos
+        anim_to_end = Animation(pos=end_pos, duration=0.4)
+        if image_path:
+            anim_to_end.bind(on_complete=lambda *args: self.start_piss_image_cycle(image_path, end_pos))
+        constants.piss_sound.play()
+        constants.piss_sound.loop = True
+        
+        anim_to_end.start(self.overlay_rect)
+        self.piss_button_held = True
 
     def show_overlay_for_duration(self, image_path, touch_pos, button_type):
         self.update_overlay_image(image_path, touch_pos, button_type)
@@ -70,21 +81,14 @@ class MainApp(App):
             self.piss_button_pressed = True
         elif button_type == 'punch':
             self.punch_button_pressed = True
-            Clock.schedule_once(self.hide_overlay, 0.7)
+            Clock.schedule_once(self.hide_overlay, 0.8)
 
     def hide_overlay(self, dt):
-        anim = Animation(pos=self.original_pos, duration=0.4)
-        anim.bind(on_complete=self.reset_overlay)
-        anim.start(self.overlay_rect)
-
-    def reset_overlay(self, *args):
         self.overlay_rect.source = ''
         self.overlay_rect.size = (0, 0)
         self.overlay_rect.pos = (0, 0)
         self.piss_button_pressed = False
         self.punch_button_pressed = False
-        self.btn_punch.disabled = False
-        self.btn_piss.disabled = False
 
     def start_piss_image_cycle(self, image_path, pos):
         self.current_piss_index = 0
@@ -101,24 +105,31 @@ class MainApp(App):
     def on_touch_piss_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
             self.piss_button_pressed = True
+            self.piss_button_held = True
+            self.piss_pos = touch.pos
             self.show_overlay_for_duration(constants.PISS[0], touch.pos, 'piss')
 
     def on_touch_piss_up(self, instance, touch):
         if self.piss_button_pressed:
-            self.hide_overlay(0)
-            constants.piss_sound.stop()
             self.piss_button_pressed = False
+            self.piss_button_held = False
+            self.piss_pos = None
+            self.return_overlay_to_start_position()
+            constants.piss_sound.stop()
+
+    def update_overlay_position(self, dt):
+        if self.piss_button_held and self.piss_pos:
+            self.overlay_rect.pos = self.piss_pos
+
+    def return_overlay_to_start_position(self):
+        anim_to_start = Animation(pos=self.start_pos, duration=0.4)
+        anim_to_start.start(self.overlay_rect)
 
     def on_touch_punch(self, instance, touch):
         if instance.collide_point(*touch.pos):
             self.punch_button_pressed = True
             self.decrease_red_bar()
             self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
-
-    def on_touch_punch_up(self, instance, touch):
-        if self.punch_button_pressed:
-            self.hide_overlay(0)
-            self.punch_button_pressed = False
 
     def decrease_red_bar(self):
         decrement = 10
@@ -182,7 +193,7 @@ class MainApp(App):
 
         rect_buttons_layout_top = GridLayout(cols=3, size_hint=(1, 0.1), spacing=10)
         self.left = Button(text=constants.text_left, size_hint_x=1.0, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
-        self.walk = Button(text=constants.text_right, size_hint_x=1.0, size_hint_y=0.1,background_color=constants.most_buttons_color[self.current_theme_index])
+        self.walk = Button(text=constants.text_right, size_hint_x=1.0, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index])
         self.right = Button(text='Walk', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='40sp')
         self.left.bind(on_press=self.change_image_next)
         self.walk.bind(on_press=self.change_image_next)
@@ -193,14 +204,13 @@ class MainApp(App):
 
         self.main_layout.add_widget(rect_buttons_layout_top)
 
-        square_buttons_layout = GridLayout(cols=2, size_hint=(1, 0.3), spacing=10)
+        square_buttons_layout = GridLayout(cols=2, size_hint=(1, 0.2), spacing=10)
         self.btn_punch = Button(text='Punch', background_color=constants.mid_btns_color[self.current_theme_index], font_size='50sp')
         self.btn_piss = Button(text='Piss', background_color=constants.mid_btns_color[self.current_theme_index], font_size='50sp')
 
         self.btn_punch.bind(on_touch_down=self.on_touch_punch)
         self.btn_piss.bind(on_touch_down=self.on_touch_piss_down)
         self.btn_piss.bind(on_touch_up=self.on_touch_piss_up)
-        self.btn_punch.bind(on_touch_up=self.on_touch_punch_up)
 
         square_buttons_layout.add_widget(self.btn_punch)
         square_buttons_layout.add_widget(self.btn_piss)
@@ -211,8 +221,8 @@ class MainApp(App):
         self.stats = Button(text='stats', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='25sp')
         self.entities = Button(text='entities', size_hint_x=0.7, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='25sp')
 
-        self.censor = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='15sp')
-        self.theme = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='15sp')
+        self.censor = Button(text='censor', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='8sp')
+        self.theme = Button(text='theme', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='8sp')
         self.quit = Button(text='Quit', size_hint_x=0.3, size_hint_y=0.1, background_color=constants.most_buttons_color[self.current_theme_index], font_size='15sp')
         self.quit.bind(on_press=self.quit_app)
         self.theme.bind(on_press=self.change_theme_next)
@@ -224,7 +234,7 @@ class MainApp(App):
         rect_buttons_layout_bottom.add_widget(self.theme)
         rect_buttons_layout_bottom.add_widget(self.quit)
         self.main_layout.add_widget(rect_buttons_layout_bottom)
-        
+
         self.global_event = Clock.schedule_interval(self.global_event_callback, 0.1)
 
         return self.main_layout
