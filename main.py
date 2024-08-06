@@ -20,6 +20,8 @@ class MainApp(App):
         self.yellow_bar_width = 0
         self.piss_button_pressed = False
         self.punch_button_pressed = False
+        self.cooldown_time = 1.0
+        self.cooldown_timer = None
         self.global_event = None
         self.start_pos = (0, 0)
         self.piss_button_held = False
@@ -45,7 +47,7 @@ class MainApp(App):
         overlay_height = self.overlay_rect.size[1]
         if button_type == 'punch':
             start_pos = (touch_pos[0] + overlay_width / 2, touch_pos[1] - overlay_height * 1.5)
-            end_pos = (touch_pos[0] + overlay_width / 3, touch_pos[1] - overlay_height / 4)
+            end_pos = (touch_pos[0] + overlay_width / 3, touch_pos[1] - overlay_height / 3)
             self.animate_punch_overlay(start_pos, end_pos)
         elif button_type == 'piss':
             start_pos = (touch_pos[0] - overlay_width * 1.3, touch_pos[1] - overlay_height * 1.5)
@@ -55,33 +57,48 @@ class MainApp(App):
     def animate_punch_overlay(self, start_pos, end_pos, image_path=None):
         self.start_pos = start_pos
         self.overlay_rect.pos = start_pos
+        self.disable_buttons()
         anim_to_end = Animation(pos=end_pos, duration=0.4)
-        anim_to_start = Animation(pos=self.start_pos, duration=0.6)
-        anim_to_end.bind(on_complete=lambda *args: anim_to_start.start(self.overlay_rect))
+        anim_to_start = Animation(pos=self.start_pos, duration=0.7)
+        
+        def on_complete(*args):
+            anim_to_start.start(self.overlay_rect)
+            Clock.schedule_once(lambda dt: self.enable_buttons(), 0.6)
+            if image_path:
+                self.start_piss_image_cycle(image_path, end_pos)
+        
+        anim_to_end.bind(on_complete=on_complete)
         constants.punch_sound.play()
-        if image_path:
-            anim_to_end.bind(on_complete=lambda *args: self.start_piss_image_cycle(image_path, end_pos))
         anim_to_end.start(self.overlay_rect)
 
     def animate_piss_overlay(self, start_pos, end_pos, image_path=None):
         self.start_pos = start_pos
         self.overlay_rect.pos = start_pos
         anim_to_end = Animation(pos=end_pos, duration=0.4)
-        if image_path:
-            anim_to_end.bind(on_complete=lambda *args: self.start_piss_image_cycle(image_path, end_pos))
+
+        def on_complete(*args):
+            if image_path:
+                self.start_piss_image_cycle(image_path, end_pos)
+        
+        anim_to_end.bind(on_complete=on_complete)
         constants.piss_sound.play()
         constants.piss_sound.loop = True
-        
         anim_to_end.start(self.overlay_rect)
         self.piss_button_held = True
 
     def show_overlay_for_duration(self, image_path, touch_pos, button_type):
+        if self.cooldown_timer and self.cooldown_timer.is_alive():
+            return
+        
         self.update_overlay_image(image_path, touch_pos, button_type)
+        
         if button_type == 'piss':
             self.piss_button_pressed = True
         elif button_type == 'punch':
             self.punch_button_pressed = True
             Clock.schedule_once(self.hide_overlay, 0.8)
+
+        self.start_cooldown()
 
     def hide_overlay(self, dt):
         self.overlay_rect.source = ''
@@ -89,6 +106,12 @@ class MainApp(App):
         self.overlay_rect.pos = (0, 0)
         self.piss_button_pressed = False
         self.punch_button_pressed = False
+
+    def start_cooldown(self):
+        self.cooldown_timer = Clock.schedule_once(self.reset_cooldown, self.cooldown_time)
+
+    def reset_cooldown(self, dt):
+        self.cooldown_timer = None
 
     def start_piss_image_cycle(self, image_path, pos):
         self.current_piss_index = 0
@@ -103,7 +126,7 @@ class MainApp(App):
         self.overlay_rect.pos = pos
 
     def on_touch_piss_down(self, instance, touch):
-        if instance.collide_point(*touch.pos):
+        if instance.collide_point(*touch.pos) and not self.cooldown_timer:
             self.piss_button_pressed = True
             self.piss_button_held = True
             self.piss_pos = touch.pos
@@ -126,7 +149,7 @@ class MainApp(App):
         anim_to_start.start(self.overlay_rect)
 
     def on_touch_punch(self, instance, touch):
-        if instance.collide_point(*touch.pos):
+        if instance.collide_point(*touch.pos) and not self.cooldown_timer:
             self.punch_button_pressed = True
             self.decrease_red_bar()
             self.show_overlay_for_duration('assets/punch.png', touch.pos, 'punch')
@@ -160,11 +183,19 @@ class MainApp(App):
         else:
             self.increase_yellow_bar()
 
+    def disable_buttons(self):
+        self.btn_punch.disabled = True
+        self.btn_piss.disabled = True
+
+    def enable_buttons(self):
+        self.btn_punch.disabled = False
+        self.btn_piss.disabled = False
+
     def quit_app(self, instance):
         App.get_running_app().stop()
 
     def build(self):
-        Window.size = (600, 1000)
+        Window.size = (600, 1100)
         self.image = Image(source=constants.PICS[0], size_hint=(1, 0.5), allow_stretch=True)
         self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         with self.main_layout.canvas.before:
